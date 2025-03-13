@@ -1,0 +1,17 @@
+# ChannelNum, DC offset, Trigger threshold, Dynamic range, Self trigger mode (pairs), Self trigger logic (pairs)
+0,50.0,250,2.0,DISABLED,OR
+1,50.0,250,2.0
+2,50.0,250,2.0,DISABLED,OR
+3,50.0,12000,2.0
+4,50.0,8500,2.0,ACQ_AND_EXTOUT,Xn
+5,50.0,250,2.0
+6,50.0,250,2.0,DISABLED,OR
+7,50.0,250,2.0
+8,50.0,250,2.0,DISABLED,OR
+9,50.0,250,2.0
+10,50.0,250,2.0,DISABLED,OR
+11,50.0,250,2.0
+12,50.0,250,2.0,DISABLED,OR
+13,50.0,250,2.0
+14,50.0,250,2.0,DISABLED,OR
+15,50.0,250,2.0

@@ -1,0 +1,48 @@
+# Config file for Board 1
+
+# Print out confirmation messages
+verbose 1
+
+# Print out data acquisition rate
+show_data_rate 1 
+
+# Temperature check
+store_temps 0 # Select to store temperature data
+temp_time 60 # Seconds between ADC temperature checks
+
+# Connection settings
+VME_bridge 0 # Use VME bridge
+address 0x32100000 # VME base address
+LinkNum 0 # Optical link number
+ConetNode 0 # Conet node number in daisy chain
+bID 1 # Board ID
+
+# Global Configuration settings
+use_global 1 # Use global settings
+DynRange 2.0 # Dynamic range
+RecLen 100000 # Acquisition window length in samples
+DCOff 61267 # DC offset
+use_ETTT 1 # Use Extended Trigger Time Tag (ETTT)
+ChanEnableMask 0xFFFF # Active channels
+
+# Trigger settings
+PostTrig 0 # Post trigger percent
+thresh 300 # Trigger threshold
+polarity positive # Trigger Polarity
+ChanSelfTrigMask 0xFFFF # Active channel self-triggers
+ChanSelfTrigMode ACQ_AND_EXTOUT # Channel self trigger propagation
+TrigInMode DISABLED # Trigger In propagation
+SWTrigMode DISABLED # Software trigger propagation
+IOLevel TTL # Trigger IO Level
+coincidence_level 0 # Self-trigger coincidence level (0-7)
+coincidence_window 2 # Self-trigger coincidence window (in 8 ns increments)
+
+# Path to individual channel settings file
+chan_set_file configfiles/v1730/b1_chan_set.txt
+
+# Number of events per file
+ev_per_file 100 # Number of events per file (use 0 for 1 big file)
+
+# Output file name or path 
+ofile /home/gmw5164/fourth_test/calibration/
+

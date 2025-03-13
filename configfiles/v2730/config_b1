@@ -1,0 +1,54 @@
+# Config file for Board 1
+
+# Print out confirmation messages
+verbose 1
+
+# Print out data acquisition rate
+show_data_rate 1 
+
+# Temperature check
+store_temps 0 # Select to store temperature data
+temp_time 60 # Seconds between ADC temperature checks
+
+# Connection settings
+VME_bridge 0 # Use VME bridge
+address 0x32100000 # VME base address
+LinkNum 0 # Optical link number
+ConetNode 0 # Conet node number in daisy chain
+path /usb/52480 # Connection path for CAEN_FELib
+bID 1 # Board ID
+
+# Global Configuration settings
+use_global 1 # Use global settings
+gain 6 # Gain (dB)
+RecLen 50000 # Acquisition window length in ns
+DCOff 50 # DC offset (%)
+use_ETTT 1 # Use Extended Trigger Time Tag (ETTT)
+ChanEnableMask 0xFFFFFFFF # Active channels
+
+# Trigger settings
+PreTrig 100 # Pre trigger time (ns)
+thresh 240 # Trigger threshold
+polarity negative # Trigger Polarity
+ChanSelfTrigMask 0xFFFFFFFF # Active channel self-triggers
+ChanSelfTrigEnable 0 # Channel self trigger
+TrigInEnable 0 # TRGIN
+SWTrigEnable 1 # Software trigger
+SWTrigRate 10.0 # Software trigger rate in Hz
+ChanSelfTrigOut 0 # Propagate ch self trigger to TRGOUT
+TrigInOut 0 # Propagate TRGIN to TRGOUT
+SWTrigOut 0 # Propagate SW trigger to TRGOUT 
+IOLevel TTL # Trigger IO Level
+coincidence_level 1 # Self-trigger coincidence level (0-32)
+pulse_width 16 # Self-trigger pulse width (ns)
+
+# Path to individual channel settings file
+chan_set_file configfiles/v2730/b1_chan_set.txt
+
+# Number of events per file
+ev_per_file 1000xy
+ # Number of events per file (use 0 for 1 big file)
+
+# Output file name or path 
+ofile /media/gmw5164/MPULSE/Initial_2730/Board1_Calibration/Board1_Calibration
+
