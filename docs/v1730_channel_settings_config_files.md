@@ -1,5 +1,5 @@
 
-# Channel settings config files
+# V1730 Channel settings config files
 
 The individual channel settings config file is set up with 16 rows of parameters, one for each channel of the V1730S. Parameters are separated by a comma with no
 spaces in between the parameters or after the last parameter in a row. The parameters in the rows are in the following order:
