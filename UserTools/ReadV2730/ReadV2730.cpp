@@ -330,7 +330,7 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
     ChanSelfTrigMask = std::stol(tmp2, 0, 16);
   }
 
-  uint32_t thresh;
+  int thresh;
   uint32_t length, percent, reg;
   uint16_t dec_factor;
   int bID, verbose, use_ETTT, TrigInEnable, SWTrigEnable, TrigInOut, SWTrigOut;
