@@ -15,8 +15,8 @@ endif
 DataModelInclude =
 DataModelLib =
 
-MyToolsInclude =
-MyToolsLib =
+MyToolsInclude = -I /home/abb5994/Downloads/CAENVMELib-v3.4.4/include/ -I /home/abb5994/Downloads/CAENComm-v1.6.0/include -I /home/abb5994/Downloads/CAENDigitizer-v2.17.3/include -I /usr/local/include -I /usr/include/hdf5/serial
+MyToolsLib = -L /usr/local/lib -lCAENVME -lCAENComm -lCAENDigitizer -lCAEN_FELib -lCAEN_Dig2 -lCAEN_Dig1 -L /usr/lib/x86_64-linux-gnu -lhdf5_serial_cpp -lhdf5_serial
 
 ZMQLib= -L $(Dependencies)/zeromq-4.0.7/lib -lzmq 
 ZMQInclude= -I $(Dependencies)/zeromq-4.0.7/include/ 
@@ -24,7 +24,7 @@ ZMQInclude= -I $(Dependencies)/zeromq-4.0.7/include/
 BoostLib= -L $(Dependencies)/boost_1_66_0/install/lib -lboost_date_time -lboost_serialization -lboost_iostreams
 BoostInclude= -I $(Dependencies)/boost_1_66_0/install/include
 
-Includes=-I $(ToolFrameworkCore)/include/ -I $(ToolDAQFramework)/include/ -I $(SOURCEDIR)/include/ $(ZMQInclude) $(BoostInclude)
+Includes=-I $(ToolFrameworkCore)/include/ -I $(ToolDAQFramework)/include/ -I $(SOURCEDIR)/include/ $(ZMQInclude) $(BoostInclude) ${MyToolsInclude}
 ToolLibraries = $(patsubst %, lib/%, $(filter lib%, $(subst /, , $(wildcard UserTools/*/*.so))))
 LIBRARIES=lib/libDataModel.so lib/libMyTools.so $(ToolLibraries)
 DataModelHEADERS:=$(patsubst %.h, include/%.h, $(filter %.h, $(subst /, ,$(wildcard DataModel/*.h))))
@@ -32,7 +32,7 @@ MyToolHEADERS:=$(patsubst %.h, include/%.h, $(filter %.h, $(subst /, ,$(wildcard
 ToolLibs = $(patsubst %.so, %, $(patsubst lib%, -l%,$(filter lib%, $(subst /, , $(wildcard UserTools/*/*.so)))))
 AlreadyCompiled = $(wildcard UserTools/$(filter-out %.so UserTools , $(subst /, ,$(wildcard UserTools/*/*.so)))/*.cpp)
 SOURCEFILES:=$(patsubst %.cpp, %.o,  $(filter-out $(AlreadyCompiled), $(wildcard */*.cpp) $(wildcard */*/*.cpp)))
-Libs=-L $(SOURCEDIR)/lib/ -lDataModel -L $(ToolDAQFramework)/lib/ -lToolDAQChain -lDAQDataModelBase  -lDAQLogging -lServiceDiscovery -lDAQStore -L $(ToolFrameworkCore)/lib/ -lToolChain -lMyTools -lDataModelBase -lLogging -lStore -lpthread  $(ToolLibs) -L $(ToolDAQFramework)/lib/ -lToolDAQChain -lDAQDataModelBase  -lDAQLogging -lServiceDiscovery -lDAQStore $(ZMQLib) $(BoostLib)
+Libs=-L $(SOURCEDIR)/lib/ -lDataModel -L $(ToolDAQFramework)/lib/ -lToolDAQChain -lDAQDataModelBase  -lDAQLogging -lServiceDiscovery -lDAQStore -L $(ToolFrameworkCore)/lib/ -lToolChain -lMyTools -lDataModelBase -lLogging -lStore -lpthread  $(ToolLibs) -L $(ToolDAQFramework)/lib/ -lToolDAQChain -lDAQDataModelBase  -lDAQLogging -lServiceDiscovery -lDAQStore $(ZMQLib) $(BoostLib) ${MyToolsLib}
 
 
 #.SECONDARY: $(%.o)

@@ -6,7 +6,7 @@ boostflag=1
 zmq=1
 final=1
 rootflag=0
-setup=1
+setup=0
 threads=`nproc --all`
 
 while [ ! $# -eq 0 ]
@@ -188,16 +188,17 @@ then
     cp -r ./Dependencies/ToolDAQFramework/configfiles/* ./configfiles
     mkdir src
     cp -r ./Dependencies/ToolDAQFramework/src/main.cpp ./src/
-    cp ./Dependencies/ToolDAQFramework/Application/* ./
+    cp ./Dependencies/ToolDAQFramework/Application/Setup.sh ./
+    cp ./Dependencies/ToolDAQFramework/Application/CMakeLists.txt ./
     git add DataModel/
     git add UserTools/*
     git add configfiles/*
-    git add ./Makefile
+    #git add ./Makefile
     git add ./CMakeLists.txt
     git add ./Setup.sh
     git add ./src/main.cpp
     rm -f ./GetToolFramework.sh
-    sed -i 's/setup=1/setup=0/' ./GetToolDAQ.sh
+    sed -i 's/setup=0/setup=0/' ./GetToolDAQ.sh
 fi   
     make clean
     make -j $threads
