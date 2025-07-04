@@ -1,0 +1,5 @@
+# Default parameters for MPULSE main run
+batch_size 100
+ring_depth 1024
+# parameters for multi-threaded readers
+#batch_size and ring_depth can be overridden per-board
