@@ -13,9 +13,9 @@ temp_time 60 # Seconds between ADC temperature checks
 # Connection settings
 VME_bridge 0 # Use VME bridge
 address 0x32100000 # VME base address
-LinkNum 0 # Optical link number
+LinkNum 1 # Optical link number
 ConetNode 0 # Conet node number in daisy chain
-bID 2 # Board ID
+bID 3 # Board ID
 
 # Global Configuration settings
 use_global 1 # Use global settings
@@ -39,7 +39,7 @@ coincidence_level 0 # Self-trigger coincidence level (0-7)
 coincidence_window 2 # Self-trigger coincidence window (in 8 ns increments)
 
 # Path to individual channel settings file
-chan_set_file configfiles/v1730/b1_chan_set.txt
+chan_set_file configfiles/v1730/b2_chan_set.txt
 
 # Number of events per file
 ev_per_file 100000 # Number of events per file
