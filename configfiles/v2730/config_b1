@@ -37,7 +37,7 @@ SWTrigEnable 1 # Software trigger
 SWTrigRate 10.0 # Software trigger rate in Hz
 ChanSelfTrigOut 0 # Propagate ch self trigger to TRGOUT
 TrigInOut 0 # Propagate TRGIN to TRGOUT
-SWTrigOut 0 # Propagate SW trigger to TRGOUT 
+SWTrigOut 1 # Propagate SW trigger to TRGOUT 
 IOLevel TTL # Trigger IO Level
 coincidence_level 1 # Self-trigger coincidence level (0-32)
 pulse_width 16 # Self-trigger pulse width (ns)
@@ -46,9 +46,9 @@ pulse_width 16 # Self-trigger pulse width (ns)
 chan_set_file configfiles/v2730/b1_chan_set.txt
 
 # Number of events per file
-ev_per_file 1000xy
+ev_per_file 1000
  # Number of events per file (use 0 for 1 big file)
 
 # Output file name or path 
-ofile /media/gmw5164/MPULSE/Initial_2730/Board1_Calibration/Board1_Calibration
-
+#ofile /home/gmw5164/MPULSE/Initial_2730/Board1_Calibration/Board1_Calibration
+ofile triple_test

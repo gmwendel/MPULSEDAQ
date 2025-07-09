@@ -248,7 +248,7 @@ uint64_t ReadV1730::OpenBoard(Store m_variables){
   uint64_t handle;
   int bID, VME_bridge, LinkNum, ConetNode, verbose;
   int ret;
-  char model[256];
+  char model[256], fwtype[256];
 
   m_variables.Get("VME_bridge", VME_bridge);
   m_variables.Get("LinkNum", LinkNum);
@@ -278,6 +278,12 @@ uint64_t ReadV1730::OpenBoard(Store m_variables){
     std::cout<<"Connected to Board "<<bID<<" Model: "<<model<<std::endl;
   }
   ReadV1730::model = std::string(model);
+
+  ret = CAEN_FELib_GetValue(handle, "/par/FWTYPE", fwtype);
+  if (ret) std::cout<<"Error getting fw type. CAEN FELib Error Code: "<<ret<<std::endl;
+  else if (!ret && verbose) {
+    std::cout<<"Board "<<bID<<" FW type: "<<fwtype<<std::endl;
+  }
 
   return handle;
 }
