@@ -344,6 +344,17 @@ bool ReadV1730::ConfigureBoard(uint64_t handle, Store m_variables) {
     return false;
   }
 
+  if (bID==2) {
+    usleep(200000); //recommended time to wait before calibrating is at least 100 ms per CAEN manual
+
+    ret = CAEN_FELib_SendCommand(handle, "/cmd/CalibrateADC");
+    if (!ret && verbose) std::cout<<"Board "<<bID<<" calibrated"<<std::endl;
+    else if (ret) {
+      std::cout<<"Board "<<bID<<" calibration failed!!!"<<std::endl;
+      return false;
+    }
+  }
+  
   ret = CAEN_FELib_SetUserRegister(handle,0xEF08,bID);
   if (!ret && verbose) std::cout<<"Set Board ID!"<<std::endl;
   else if (ret) {
