@@ -1,0 +1,3 @@
+ReadV2730Clock1 ReadV2730Clock configfiles/v2730clock/config_b1
+ReadV1730Clock1 ReadV1730Clock configfiles/v1730clock/config_b1
+#ReadBoard3 ReadBoard configfiles/v1730/config_b3
