@@ -39,9 +39,12 @@ bool ReadV2730Clock::Execute(){
   uint64_t handle=ReadV2730Clock::handle;
   int ret; bID=ReadV2730Clock::bID;
   float delay;
+  int verbose;
   char value[256];
 
   m_variables.Get("delay", delay);
+  m_variables.Get("verbose", verbose);
+
   std::cout<<"Delay from file: "<<delay<<std::endl;
 
   ret = ReadV2730Clock::SetFloatValue(handle, "/par/VolatileClockOutDelay", delay);
@@ -51,7 +54,7 @@ bool ReadV2730Clock::Execute(){
     return false;
   }
   else {
-    std::cout<<"Set board "<<bID<<" volatile clock delay to: :<<value<<std::endl;
+    std::cout<<"Set board "<<bID<<" volatile clock delay to: "<<value<<std::endl;
   }
 
   ret = CAEN_FELib_SetValue(handle, "/par/EnClockOutFP", "True");

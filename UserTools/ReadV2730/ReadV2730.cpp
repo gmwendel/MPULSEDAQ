@@ -16,6 +16,7 @@ bool ReadV2730::Initialise(std::string configfile, DataModel &data){
   uint64_t handle;
   int bID;
   int ret;
+  char value[256];
 
   handle = ReadV2730::OpenBoard(m_variables);
   ReadV2730::handle = handle;
@@ -23,6 +24,14 @@ bool ReadV2730::Initialise(std::string configfile, DataModel &data){
 
   m_variables.Get("bID", bID);
   ReadV2730::bID = bID;
+
+  ret = CAEN_FELib_SetValue(handle, "/par/EnClockOutFP", "True");
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" clock out enable: "<<ret<<std::endl;
+    return false;
+  }
+  ret = CAEN_FELib_GetValue(handle, "/par/EnClockOutFP", value);
+  std::cout<<"Board "<<bID<<" clock out enable set to: "<<value<<std::endl;
 
   bool test = ReadV2730::ConfigureBoard(handle, m_variables);
   if(!test) {
