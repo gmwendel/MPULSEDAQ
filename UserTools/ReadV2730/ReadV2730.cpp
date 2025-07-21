@@ -552,6 +552,15 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
     return false;
   }
 
+  ret = CAEN_FELib_SetValue(handle, "/par/ITLAMainLogic", "Majority");
+  if (ret) {
+    std::cout<<"Error setting ITLA main logic: "<<ret<<std::endl;
+  }
+
+  ret = CAEN_FELib_SetValue(handle, "/par/ITLAPairLogic", "NONE");
+  if (ret) {
+    std::cout<<"Error setting ITLA pair logic: "<<ret<<std::endl;
+  }
 
   // Set coincidence level
   int coin_level;
