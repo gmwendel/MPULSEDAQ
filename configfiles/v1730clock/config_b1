@@ -1,0 +1,11 @@
+# Config file for Board 1
+
+# Print out confirmation messages
+verbose 1
+
+# Connection settings
+VME_bridge 0 # Use VME bridge
+address 0x32100000 # VME base address
+LinkNum 0 # Optical link number
+ConetNode 0 # Conet node number in daisy chain
+bID 2 # Board ID
