@@ -374,6 +374,7 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
     std::cout<<"Board reset failed!!!"<<std::endl;
     return false;
   }
+
 /*
   ret = CAEN_FELib_SetUserRegister(handle,0xEF08,bID);
   if (!ret && verbose) std::cout<<"Set Board ID!"<<std::endl;
@@ -404,6 +405,16 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
   else if (ret) {
     std::cout<<"Error setting board "<<bID<<" pre trigger size: "<<ret<<std::endl;
     return false;
+  }
+
+  ret = ReadV2730::SetFloatValue(handle, "/par/TriggerDelayT", 0);
+  ret = CAEN_FELib_GetValue(handle, "/par/TriggerDelayT", value);
+  if (ret) {
+    std::cout<<"Error setting trigger delay: "<<ret<<std::endl;
+    return false;
+  }
+  else {
+    std::cout<<"Set trigger delay to: "<<value<<std::endl;
   }
 
   ret = CAEN_FELib_GetValue(handle, "/par/NUMCH", value);
