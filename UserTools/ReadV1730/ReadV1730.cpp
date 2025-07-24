@@ -54,6 +54,39 @@ bool ReadV1730::Initialise(std::string configfile, DataModel &data){
 
   ReadV1730::outfile = ReadV1730::OpenOutFile(ofile_full, ReadV1730::ev_per_file, ReadV1730::nchan, ReadV1730::nsamp);
 
+  ret = CAEN_FELib_SetValue(handle, "/endpoint/par/activeendpoint", "scope");
+  if (ret) {
+    std::cout<<"Error setting active endpoint: "<<ret<<std::endl;
+    return false;
+  }
+  ret = CAEN_FELib_GetHandle(handle, "/endpoint/scope", &ep_handle);
+  if (ret) {
+    std::cout<<"Error getting endpoint handle: "<<ret<<std::endl;
+    return false;
+  }
+  ReadV1730::ep_handle = ep_handle;
+  ret = CAEN_FELib_SetReadDataFormat(ep_handle, DATA_FORMAT);
+  if (ret) {
+    std::cout<<"Error setting read data format: "<<ret<<std::endl;
+    return false;
+  }
+
+  ret = CAEN_FELib_SendCommand(handle, "/cmd/cleardata");
+  if (ret) {
+    std::cout<<"Error clearing data: "<<ret<<std::endl;
+    return false;
+  }
+
+  ret = CAEN_FELib_SendCommand(handle, "/cmd/armacquisition");
+  if (!ret) {
+    std::cout<<"Acquisition started"<<std::endl;
+    ReadV1730::acq_started = 1;
+  }
+  else {
+    std::cout<<"Error starting acquisition: "<<ret<<std::endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -70,6 +103,7 @@ bool ReadV1730::Execute(){
   uint64_t handle=ReadV1730::handle, ep_handle, CurrentTime, ElapsedRateTime, ElapsedSWTrigTime;
 
   if (!ReadV1730::acq_started) {
+/*
     ret = CAEN_FELib_SetValue(handle, "/endpoint/par/activeendpoint", "scope");
     if (ret) {
       std::cout<<"Error setting active endpoint: "<<ret<<std::endl;
@@ -108,6 +142,7 @@ bool ReadV1730::Execute(){
     ReadV1730::PrevRateTime = ReadV1730::get_time();
     ReadV1730::PrevSWTrigTime = ReadV1730::get_time();
     ReadV1730::event_count=0;
+  */
   }
   else {
     CurrentTime = ReadV1730::get_time();
@@ -507,6 +542,12 @@ bool ReadV1730::ConfigureBoard(uint64_t handle, Store m_variables) {
   ret = CAEN_FELib_SetValue(handle, "/par/STARTMODE", "START_MODE_SW");
   if (ret) {
     std::cout<<"Error setting acquisition mode: "<<ret<<std::endl;
+    return false;
+  }
+
+  ret = CAEN_FELib_SetValue(handle, "/par/TRG_COUNT_ALL", "TRUE");
+  if (ret) {
+    std::cout<<"Error setting trg count mode: "<<ret<<std::endl;
     return false;
   }
 

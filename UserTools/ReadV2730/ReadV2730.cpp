@@ -516,7 +516,8 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
   if (!SWTrigOut & !TrigInOut & !ChanSelfTrigOut) {
     trig_out_types = "Disabled";
   }
-  ret = CAEN_FELib_SetValue(handle, "/par/TrgOutMode", trig_out_types.c_str());
+  //ret = CAEN_FELib_SetValue(handle, "/par/TrgOutMode", trig_out_types.c_str());
+  ret = CAEN_FELib_SetValue(handle, "/par/TrgOutMode", "AcceptTrg");
   if (ret) {
     std::cout<<"Error setting board "<<bID<<" TRGOUT mode: "<<ret<<std::endl;
     return false;
@@ -807,7 +808,7 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
     return false;
   }
 
-  ret = CAEN_FELib_SetValue(handle, "/par/TriggerIDMode", "TriggerCnt");
+  ret = CAEN_FELib_SetValue(handle, "/par/TriggerIDMode", "EventCnt");
   if (ret) {
     std::cout<<"Error setting board "<<bID<<" trigger ID mode: "<<ret<<std::endl;
     return false;
@@ -890,9 +891,11 @@ void ReadV2730::WriteEvent(H5::H5File& file, struct event_2730* evt, int event_i
   H5::DataSpace fileSpace = ReadV2730::full_scalar_ds;
   fileSpace.selectHyperslab(H5S_SELECT_SET, scalar_dims, offset);
 
+  uint32_t trgIDPlusOne = evt->trigger_id + 1;
+
   file.openDataSet("/timestamp").write(&evt->timestamp, H5::PredType::NATIVE_UINT64, scalar_dataspace, fileSpace);
   file.openDataSet("/timestamp_ns").write(&evt->timestamp_ns, H5::PredType::NATIVE_UINT64, scalar_dataspace, fileSpace);
-  file.openDataSet("/trigger_id").write(&evt->trigger_id, H5::PredType::NATIVE_UINT32, scalar_dataspace, fileSpace);
+  file.openDataSet("/trigger_id").write(&trgIDPlusOne, H5::PredType::NATIVE_UINT32, scalar_dataspace, fileSpace);
   file.openDataSet("/flags").write(&evt->flags, H5::PredType::NATIVE_UINT16, scalar_dataspace, fileSpace);
   file.openDataSet("/board_fail").write(&evt->board_fail, H5::PredType::NATIVE_UINT8, scalar_dataspace, fileSpace);
 
