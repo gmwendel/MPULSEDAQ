@@ -30,17 +30,33 @@ ChanEnableMask 0xFFFFFFFF # Active channels
 PreTrig 100 # Pre trigger time (ns)
 thresh 240 # Trigger threshold
 polarity negative # Trigger Polarity
-ChanSelfTrigMask 0xFFFFFFFF # Active channel self-triggers
-ChanSelfTrigEnable 0 # Channel self trigger
+#ChanSelfTrigMask 0xFFFFFFFF # Active channel self-triggers
+ChanSelfTrigEnable 0 # Channel self trigger (only ITLA)
 TrigInEnable 0 # TRGIN
-SWTrigEnable 1 # Software trigger
+SWTrigEnable 0 # Software trigger
+ITLComboEnable 1 # Trigger signal is AND of ITLA and ITLB
 SWTrigRate 10.0 # Software trigger rate in Hz
 ChanSelfTrigOut 0 # Propagate ch self trigger to TRGOUT
 TrigInOut 0 # Propagate TRGIN to TRGOUT
-SWTrigOut 1 # Propagate SW trigger to TRGOUT 
+SWTrigOut 0 # Propagate SW trigger to TRGOUT
+AcceptedTrigOut 1 # Propagate only accepted triggers to TRGOUT  
 IOLevel TTL # Trigger IO Level
-coincidence_level 1 # Self-trigger coincidence level (0-32)
+#coincidence_level 1 # Self-trigger coincidence level (0-32)
 pulse_width 16 # Self-trigger pulse width (ns)
+
+# ITLA settings
+ITLAMask 0xFFFFFFFE  # Mask for enabled channels in ITLA
+ITLAMainLogic Majority # AND, OR, or Majority
+ITLAPairLogic NONE # AND, OR, NONE
+ITLAMajorityLev 2  # coincidence level >=n
+ITLAGateWidth 0 # width of ITLA output (increment 8, unit ns). 0 = "linear"
+
+# ITLB settings
+ITLBMask 0x00000001  # Mask for enabled channels in ITLB
+ITLBMainLogic AND # AND, OR, or Majority
+ITLBPairLogic NONE # AND, OR, NONE
+ITLBMajorityLev 1  # coincidence level >=n
+ITLBGateWidth 0 # width of ITLB output (increment 8, unit ns). 0 = "linear"
 
 # Path to individual channel settings file
 chan_set_file configfiles/v2730/b1_chan_set.txt

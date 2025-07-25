@@ -342,7 +342,7 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
   int thresh;
   uint32_t length, percent, reg;
   uint16_t dec_factor;
-  int bID, verbose, use_ETTT, TrigInEnable, SWTrigEnable, TrigInOut, SWTrigOut;
+  int bID, verbose, use_ETTT, TrigInEnable, SWTrigEnable, ITLComboEnable, TrigInOut, SWTrigOut, AcceptedTrigOut;
   int recLen, preTrig, mask=0;
   float dynRange, DCOff;
   char value[256];
@@ -360,8 +360,10 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
   m_variables.Get("polarity", polarity);
   m_variables.Get("TrigInEnable", TrigInEnable);
   m_variables.Get("SWTrigEnable", SWTrigEnable);
+  m_variables.Get("ITLComboEnable", ITLComboEnable);
   m_variables.Get("TrigInOut", TrigInOut);
   m_variables.Get("SWTrigOut", SWTrigOut);
+  m_variables.Get("AcceptedTrigOut", AcceptedTrigOut);
   m_variables.Get("DCOff", DCOff);
   m_variables.Get("bID", bID);
   m_variables.Get("verbose", verbose);
@@ -478,12 +480,19 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
       trig_types += "|";
     }
     trig_types += "TrgIn";
+    multiple = true;
   }
   if (ChanSelfTrigEnable) {
     if (multiple) trig_types += "|";
     trig_types += "ITLA";
+    multiple = true;
   }
-  if (!SWTrigEnable & !TrigInEnable & !ChanSelfTrigEnable) {
+  if (ITLComboTrigEnable) {
+    if (multiple) trig_types += "|";
+    trig_types += "ITLA_AND_ITLB";
+    multiple = true;
+  }
+  if (trig_types=="") {
     std::cout<<"At least one trigger type must be enabled!"<<std::endl;
     return false;
   }
@@ -508,16 +517,22 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
       trig_out_types += "|";
     }
     trig_out_types += "TrgIn";
+    multiple_out = true;
   }
   if (ChanSelfTrigOut) {
     if (multiple_out) trig_out_types += "|";
     trig_out_types += "ITLA";
+    multiple_out = true;
   }
-  if (!SWTrigOut & !TrigInOut & !ChanSelfTrigOut) {
+  if (AcceptedTrigOut) {
+    if (multiple_out) trig_out_types += "|";
+    trig_out_types += "AcceptTrg";
+    multiple_out = true;
+  }
+  if (trig_out_types=="") {
     trig_out_types = "Disabled";
   }
-  //ret = CAEN_FELib_SetValue(handle, "/par/TrgOutMode", trig_out_types.c_str());
-  ret = CAEN_FELib_SetValue(handle, "/par/TrgOutMode", "AcceptTrg");
+  ret = CAEN_FELib_SetValue(handle, "/par/TrgOutMode", trig_out_types.c_str());
   if (ret) {
     std::cout<<"Error setting board "<<bID<<" TRGOUT mode: "<<ret<<std::endl;
     return false;
@@ -564,24 +579,122 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
     return false;
   }
 
-  ret = CAEN_FELib_SetValue(handle, "/par/ITLAMainLogic", "Majority");
+  std::string ITLAMainLogic, ITLBMainLogic, ITLAPairLogic, ITLBPairLogic;
+  float ITLAMajorityLev, ITLBMajorityLev, ITLAGateWidth, ITLBGateWidth;
+
+  m_variables.Get("ITLAMainLogic", ITLAMainLogic);
+  m_variables.Get("ITLBMainLogic", ITLBMainLogic);
+  m_variables.Get("ITLAPairLogic", ITLAPairLogic);
+  m_variables.Get("ITLBPairLogic", ITLBPairLogic);
+  m_variables.Get("ITLAMajorityLev", ITLAMajorityLev);
+  m_variables.Get("ITLBMajorityLev", ITLBMajorityLev);
+  m_variables.Get("ITLAGateWidth", ITLAGateWidth);
+  m_variables.Get("ITLBGateWidth", ITLBGateWidth);
+
+  if (ITLAMainLogic=="AND" || ITLAMainLogic=="OR" || ITLAMainLogic=="Majority") {
+    ret = CAEN_FELib_SetValue(handle, "/par/ITLAMainLogic", ITLAMainLogic.c_str());
+  }
+  else {
+    std::cout<<"ITLAMainLogic must be AND, OR, or Majority"<<std::endl;
+    return false;
+  }
   if (ret) {
     std::cout<<"Error setting ITLA main logic: "<<ret<<std::endl;
   }
 
-  ret = CAEN_FELib_SetValue(handle, "/par/ITLAPairLogic", "NONE");
+  if (ITLAPairLogic=="OR" || ITLAPairLogic=="AND" || ITLAPairLogic=="NONE") {
+    ret = CAEN_FELib_SetValue(handle, "/par/ITLAPairLogic", ITLAPairLogic.c_str());
+  }
+  else {
+    std::cout<<"ITLAPairLogic must be OR, AND, or NONE"<<std::endl;
+    return false;
+  }
   if (ret) {
     std::cout<<"Error setting ITLA pair logic: "<<ret<<std::endl;
   }
 
+  ret = ReadV2730::SetFloatValue(handle, "/par/ITLAMajorityLev", ITLAMajorityLev);
+  ret = CAEN_FELib_GetValue(handle, "/par/ITLAMajorityLev", value);
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" ITLA majority level: "<<ret<<std::endl;
+    return false;
+  }
+  else if (verbose) {
+    std::cout<<"Set board "<<bID<<" ITLA majority level to: "<<value<<std::endl;
+  }
+
+  ret = ReadV2730::SetFloatValue(handle, "/par/ITLAGateWidth", ITLAGateWidth);
+  ret = CAEN_FELib_GetValue(handle, "/par/ITLAGateWidth", value);
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" ITLA gate width: "<<ret<<std::endl;
+    return false;
+  }
+  else if (verbose) {
+    std::cout<<"Set board "<<bID<<" ITLA gate width to: "<<value<<std::endl;
+  }
+
+  if (ITLBMainLogic=="AND" || ITLBMainLogic=="OR" || ITLBMainLogic=="Majority") {
+    ret = CAEN_FELib_SetValue(handle, "/par/ITLBMainLogic", ITLBMainLogic.c_str());
+  }
+  else {
+    std::cout<<"ITLBMainLogic must be AND, OR, or Majority"<<std::endl;
+    return false;
+  }
+  if (ret) {
+    std::cout<<"Error setting ITLB main logic: "<<ret<<std::endl;
+  }
+
+  if (ITLBPairLogic=="OR" || ITLBPairLogic=="AND" || ITLBPairLogic=="NONE") {
+    ret = CAEN_FELib_SetValue(handle, "/par/ITLBPairLogic", ITLBPairLogic.c_str());
+  }
+  else {
+    std::cout<<"ITLBPairLogic must be OR, AND, or NONE"<<std::endl;
+    return false;
+  }
+  if (ret) {
+    std::cout<<"Error setting ITLB pair logic: "<<ret<<std::endl;
+  }
+
+  ret = ReadV2730::SetFloatValue(handle, "/par/ITLBMajorityLev", ITLBMajorityLev);
+  ret = CAEN_FELib_GetValue(handle, "/par/ITLBMajorityLev", value);
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" ITLB majority level: "<<ret<<std::endl;
+    return false;
+  }
+  else if (verbose) {
+    std::cout<<"Set board "<<bID<<" ITLB majority level to: "<<value<<std::endl;
+  }
+
+  ret = ReadV2730::SetFloatValue(handle, "/par/ITLBGateWidth", ITLBGateWidth);
+  ret = CAEN_FELib_GetValue(handle, "/par/ITLBGateWidth", value);
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" ITLB gate width: "<<ret<<std::endl;
+    return false;
+  }
+  else if (verbose) {
+    std::cout<<"Set board "<<bID<<" ITLB gate width to: "<<value<<std::endl;
+  }
+
+  ret = CAEN_FELib_SetValue(handle, "/par/ITLAEnRetrigger", "False");
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" ITLA retrigger: "<<ret<<std::endl;
+    return false;
+  }
+
+  ret = CAEN_FELib_SetValue(handle, "/par/ITLBEnRetrigger", "False");
+  if (ret) {
+    std::cout<<"Error setting board "<<bID<<" ITLB retrigger: "<<ret<<std::endl;
+    return false;
+  }
+
   // Set coincidence level
-  int coin_level;
-  m_variables.Get("coincidence_level", coin_level);
+  //int coin_level;
+  //m_variables.Get("coincidence_level", coin_level);
 
   // Set coincidence window
   std::string pulse_width;
   m_variables.Get("pulse_width", pulse_width);
-
+/*
   ret = ReadV2730::SetFloatValue(handle, "/par/ITLAMajorityLev", coin_level);
   ret = CAEN_FELib_GetValue(handle, "/par/ITLAMajorityLev", value);
   if (ret) {
@@ -591,7 +704,7 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
   else if (verbose) {
     std::cout<<"Set board "<<bID<<" majority level to: "<<value<<std::endl;
   }
-
+*/
   ret = CAEN_FELib_SetValue(handle, "/ch/0..31/par/SelfTriggerWidth", pulse_width.c_str());
   if (ret) {
     std::cout<<"Error setting board "<<bID<<" pulse width: "<<ret<<std::endl;
@@ -602,21 +715,33 @@ bool ReadV2730::ConfigureBoard(uint64_t handle, Store m_variables) {
     std::cout<<"Board "<<bID<<" pulse width set to: "<<value<<std::endl;
   }
 
-    int mask_enable=0;
+    int itla_mask_enable=0;
+    int itlb_mask_enable=0;
     for (int ch = 0; ch < numch; ch++) {
       std::string par_ch = std::string("/ch/") + std::to_string(ch) + "/par/ITLConnect";
-      if (ChanSelfTrigMask & (1 << ch)) {
+      if (ITLAMask & (1 << ch)) {
         ret = CAEN_FELib_SetValue(handle, par_ch.c_str(), "ITLA");
         ret = CAEN_FELib_GetValue(handle, par_ch.c_str(), value);
-        if (strcmp(value, "ITLA")==0) mask_enable = mask_enable + (1<<ch);
+        //if (strcmp(value, "ITLA")==0) mask_enable = mask_enable + (1<<ch);
         if (ret) {
-          std::cout<<"Error setting board "<<bID<<" channel "<<ch<<" self trigger enable: "<<ret<<std::endl;
+          std::cout<<"Error setting board "<<bID<<" channel "<<ch<<" ITLA trigger enable: "<<ret<<std::endl;
+          return false;
+        }
+      }
+      if (ITLBMask & (1 << ch)) {
+        ret = CAEN_FELib_SetValue(handle, par_ch.c_str(), "ITLB");
+        ret = CAEN_FELib_GetValue(handle, par_ch.c_str(), value);
+        if (strcmp(value, "ITLA")==0) itla_mask_enable = itla_mask_enable + (1<<ch);
+        else if (strcmp(value, "ITLB")==0) itlb_mask_enable = itlb_mask_enable + (1<<ch);
+        if (ret) {
+          std::cout<<"Error setting board "<<bID<<" channel "<<ch<<" ITLB trigger enable: "<<ret<<std::endl;
           return false;
         }
       }
     }
     if (verbose) {
-      std::cout<<"Ch Self Trig Enable Mask: "<<std::hex<<mask_enable<<std::dec<<std::endl;
+      std::cout<<"ITLA Enable Mask: "<<std::hex<<itla_mask_enable<<std::dec<<std::endl;
+      std::cout<<"ITLB Enable Mask: "<<std::hex<<itlb_mask_enable<<std::dec<<std::endl;
     }
 
   int use_global;
